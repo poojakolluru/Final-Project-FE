@@ -202,7 +202,7 @@ function login() {
     let user = users.find(u => u.id === userInput && u.password === password && u.role === role);
 
     if (user) {
-        if (role === "faculty") window.location.href = "faculty_dashboard.html";
+        if (role === "faculty") window.location.href = "faculty_dashboard/index.html";
         else window.location.href = "student_dashboard/index.html";
     } else {
         alert("Invalid ID or Password!");
@@ -213,4 +213,5 @@ function login() {
 
 </body>
 </html>
+
 
