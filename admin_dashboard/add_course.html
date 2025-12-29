@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Courses</title>
+    <style>
+        /* KEEPING ALL YOUR SAME STYLES */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap');
+              body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            color: #333;
+            display: flex;
+            height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Toggle Button */
+        .toggle-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: linear-gradient(45deg, #ff6b9d, #c44569);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .toggle-btn:hover {
+            transform: scale(1.1);
+            background: linear-gradient(45deg, #c44569, #ff6b9d);
+        }
+
+        /* Side Navbar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #81c784 0%, #4db6ac 100%);
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+            padding: 20px 0;
+            position: fixed;
+            height: 100%;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+            transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border-radius: 0 20px 20px 0;
+        }
+
+        .sidebar.collapsed {
+            width: 70px;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin: 0 0 30px 0;
+            color: #fff;
+            font-weight: 500;
+            font-size: 1.8em;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .sidebar.collapsed h2 {
+            display: none;
+        }
+
+        /* Nav Items */
+        .nav-item {
+            list-style: none;
+            margin: 15px 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 15px;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(10px) scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-link i {
+            margin-right: 15px;
+            font-size: 1.5em;
+        }
+
+        .sidebar.collapsed .nav-link span {
+            display: none;
+        }
+
+        .sidebar.collapsed .nav-link i {
+            margin-right: 0;
+        }
+
+        /* Dropdown Styles */
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-toggle {
+            cursor: pointer;
+        }
+
+        .dropdown-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.4s ease, opacity 0.3s ease;
+            opacity: 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 10px;
+        }
+
+        .dropdown.open .dropdown-menu {
+            max-height: 250px;
+            opacity: 1;
+        }
+
+        .dropdown-menu li {
+            margin: 0;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 12px 20px;
+            color: #555;
+            text-decoration: none;
+            transition: background 0.2s ease;
+        }
+
+        .dropdown-menu a:hover {
+            background: #e8f5e8;
+            color: #388e3c;
+        }
+
+        .sidebar.collapsed .dropdown-menu {
+            display: none; /* Hide dropdowns when collapsed */
+        }
+
+        /* Main Dashboard */
+        .main-content {
+             margin-left: 280px; 
+             padding: 80px 20px 20px 20px; /* Extra top padding for toggle button */
+             flex: 1;
+            
+            border-radius: 20px 0 0 20px;
+            
+            
+            /* transition: margin-left 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); */
+            /* animation: fadeIn 0.5s ease; */ 
+        }
+
+        .main-content.collapsed {
+            margin-left: 70px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dashboard-header {
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            color: #4db6ac;
+            text-align: center;
+            animation: bounceIn 0.6s ease;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .dashboard-grid {
+        display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 cards per row */
+    gap: 25px;
+    justify-items: center;
+        }
+
+        .card {
+            width:70%;
+            background: linear-gradient(145deg, #fff, #f1f8e9);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px) rotate(1deg);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h3 {
+            color: #388e3c;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            font-size: 1.5em;
+            color: #666;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+                border-radius: 0;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .toggle-btn {
+                display: none; /* Hide toggle on mobile; auto-collapse */
+            }
+        }
+           .container1 {
+        
+            
+        padding: 25px;
+        border-radius: 12px;
+        
+        
+        width: 100%;
+       
+        
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+        #courseForm { display:none; max-width:550px; margin:-60px auto; background:#fff; padding:30px; border-radius:15px; box-shadow:0 6px 25px rgba(0,0,0,0.15); }
+        #courseForm label { font-weight:600; display:block; margin-bottom:5px; }
+        #courseForm input { width:100%; padding:12px; border-radius:8px; border:1px solid #b8e0d6; margin-bottom:18px; }
+        #saveCourseBtn { width:100%; padding:12px; background:linear-gradient(135deg,#4db6ac,#388e3c); border:none; border-radius:8px; color:white; font-size:1.1em; font-weight:600; cursor:pointer; }
+        #saveCourseBtn:hover { background:linear-gradient(135deg,#388e3c,#4db6ac); }
+
+        button { background:#7e22ce; color:white; padding:10px 20px; border:none; border-radius:6px; cursor:pointer; }
+        button:hover { background:#686c6a; }
+
+        table { width:100%; border-collapse:collapse; margin-top:15px; }
+        th, td { border:1px solid #ccc; padding:12px; text-align:center; }
+        th { background:#57c296; color:#fff; }
+        .edit-btn { background:#0288D1; }
+        .delete-btn { background:#D32F2F; }
+    </style>
+</head>
+<body>
+
+<button class="toggle-btn" id="toggle-btn">☰</button>
+
+<nav class="sidebar" id="sidebar">
+    <div class="logo-container"><img src="images/logo4.png" style="width:100%;height:168px;"></div>
+    <h2>Dashboard</h2>
+      <ul>
+            <li class="nav-item">
+                <a href="index.html" class="nav-link"><i>🏠</i><span>Home</span></a>
+            </li>
+            <li class="nav-item dropdown" id="analytics">
+                <a href="#" class="nav-link dropdown-toggle"><i>👥</i><span>Add users</span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="add_faculty.html">Faculty</a></li>
+                    <li><a href="add_student.html">Students</a></li>
+                
+                </ul>
+            </li>
+            <li class="nav-item dropdown" id="users">
+                <a href="#" class="nav-link dropdown-toggle"><i>📚</i><span> Courses</span></a>
+                 <ul class="dropdown-menu">
+                    <div style="list-style: none;">
+                    <li><a href="add_course.html" >Add Courses</a></li>
+                    <li><a href="view_courses.html">View Courses</a></li>
+                    <li><a href="alm.html">ALM</a></li>
+                    </div>
+                </ul> 
+            </li>
+            <!-- <li class="nav-item">
+                <a href="#" class="nav-link"><i>⚙️</i><span>Settings</span></a>
+            </li> -->
+        </ul>
+</nav>
+
+<main class="main-content" id="main-content">
+<div class="container1">
+
+    <h2>Add Course</h2>
+    <button id="addCourseBtn">Add Course</button>
+
+    <form id="courseForm">
+        <label>Course ID</label>
+        <input type="text" id="cid" placeholder="Enter Course ID">
+        <label>Course Name</label>
+        <input type="text" id="cname" placeholder="Enter Course Name">
+        <label>Duration</label>
+        <input type="text" id="duration" placeholder="Enter Duration (Months)">
+        <label>Credits</label>
+        <input type="text" id="fees" placeholder="Enter credits">
+        <button type="button" id="saveCourseBtn">Save</button>
+    </form>
+
+    <table id="courseTable">
+        <thead>
+            <tr><th>Course ID</th><th>Course Name</th><th>Duration</th><th>Credits</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="courseBody"></tbody>
+    </table>
+
+</div>
+</main>
+
+<script>
+/* toggle & dropdown */
+document.getElementById("toggle-btn").onclick = () => {
+    sidebar.classList.toggle("collapsed");
+    mainContent.classList.toggle("collapsed");
+};
+document.querySelectorAll('.dropdown-toggle').forEach(t => t.onclick = e => {
+    e.preventDefault(); t.parentElement.classList.toggle("open");
+});
+
+/* Add Course */
+let addBtn = document.getElementById("addCourseBtn");
+let form = document.getElementById("courseForm");
+let saveBtn = document.getElementById("saveCourseBtn");
+let table = document.getElementById("courseTable");
+let tbody = document.getElementById("courseBody");
+let editIndex = -1;
+
+window.onload = () => {
+    let courses = JSON.parse(localStorage.getItem("courses")) || [];
+    courses.forEach(c => addRow(c));
+};
+
+addBtn.onclick = () => {
+    form.style.display = "block";
+    table.style.display = "none";
+    addBtn.style.display = "none";
+};
+
+saveBtn.onclick = () => {
+    let course = {
+        cid: cid.value,
+        cname: cname.value,
+        duration: duration.value,
+        fees: fees.value
+    };
+
+    if (Object.values(course).includes("")) {
+        alert("⚠ Fill all fields");
+        return;
+    }
+
+    let courses = JSON.parse(localStorage.getItem("courses")) || [];
+    if (editIndex === -1) {
+        courses.push(course);
+        addRow(course);
+    } else {
+        courses[editIndex] = course;
+        refresh(courses);
+        editIndex = -1;
+    }
+
+    localStorage.setItem("courses", JSON.stringify(courses));
+    form.reset();
+    form.style.display = "none";
+    table.style.display = "table";
+    addBtn.style.display = "block";
+};
+
+function addRow(c) {
+    let row = tbody.insertRow();
+    row.innerHTML = `
+        <td>${c.cid}</td>
+        <td>${c.cname}</td>
+        <td>${c.duration}</td>
+        <td>${c.fees}</td>
+        <td>
+            <button class="edit-btn" onclick="editCourse(this)">Edit</button>
+            <button class="delete-btn" onclick="deleteCourse(this)">Delete</button>
+        </td>`;
+}
+
+function refresh(courses) {
+    tbody.innerHTML = "";
+    courses.forEach(addRow);
+}
+
+window.editCourse = btn => {
+    editIndex = btn.parentNode.parentNode.rowIndex - 1;
+    let r = tbody.rows[editIndex];
+    cid.value = r.cells[0].innerText;
+    cname.value = r.cells[1].innerText;
+    duration.value = r.cells[2].innerText;
+    fees.value = r.cells[3].innerText;
+    form.style.display = "block";
+    table.style.display = "none";
+    addBtn.style.display = "none";
+};
+
+window.deleteCourse = btn => {
+    let index = btn.parentNode.parentNode.rowIndex - 1;
+    let courses = JSON.parse(localStorage.getItem("courses")) || [];
+    courses.splice(index, 1);
+    localStorage.setItem("courses", JSON.stringify(courses));
+    refresh(courses);
+};
+</script>
+</body>
+</html>

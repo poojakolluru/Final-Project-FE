@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LMS Login & Registration</title>
+
+<style>
+    /* General Styling */
+    * {
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+    }
+
+    body {
+        background-image: url(images/wmremove-transformed.jpeg);
+        background-size: cover;
+        background-position: center;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+    }
+
+    .container {
+        background: #ecf3f3;
+        width: 90%;
+        max-width: 420px;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0px 10px 30px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: black;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    select {
+        width: 100%;
+        padding: 12px;
+        margin: 10px 0;
+        border: 1.5px solid #cbd5e0;
+        border-radius: 8px;
+        font-size: 15px;
+        transition: 0.3s;
+    }
+
+    input:focus, select:focus {
+        border-color: #77d85a;
+        outline: none;
+        box-shadow: 0 0 5px rgba(90,103,216,0.3);
+    }
+
+    button {
+        width: 100%;
+        background: #5a67d8;
+        color: white;
+        border: none;
+        padding: 12px;
+        font-size: 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    button:hover {
+        background: #434190;
+    }
+
+    .switch {
+        text-align: center;
+        margin-top: 15px;
+    }
+
+    .switch a {
+        color: red;
+        cursor: pointer;
+        font-weight: 500;
+    }
+
+    @media (max-width: 480px) {
+        .container {
+            padding: 22px;
+        }
+    }
+</style>
+</head>
+<body>
+
+<!-- Login Form -->
+<div class="container" id="loginForm">
+    <h2>Learning Management System</h2>
+
+    <select id="loginRole">
+        <option value="admin">Admin</option>
+        <option value="faculty">Faculty</option>
+        <option value="student">Student</option>
+    </select>
+
+    <input type="text" id="loginUser" placeholder="User ID / Username" required>
+    <input type="password" id="loginPassword" placeholder="Password" required>
+
+    <button onclick="login()">Login</button>
+
+    <div class="switch">
+        <p>Don’t have an account? <a onclick="toggleForm('register')">Register</a></p>
+    </div>
+</div>
+
+<!-- Registration Form -->
+<div class="container" id="registerForm" style="display:none;">
+    <h2>Create Account</h2>
+
+    <select id="regRole">
+        <option value="faculty">Faculty</option>
+        <option value="student">Student</option>
+    </select>
+
+    <input type="text" id="regName" placeholder="Full Name" required>
+    <input type="email" id="regEmail" placeholder="Email" required>
+    <input type="password" id="regPassword" placeholder="Password" required>
+    <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+
+    <button onclick="register()">Register</button>
+
+    <div class="switch">
+        <p>Already have an account? <a onclick="toggleForm('login')">Login</a></p>
+    </div>
+</div>
+
+<script>
+/* ------------ FIXED ADMIN LOGIN ------------ */
+const admin = {
+    username: "admin",
+    password: "admin123"
+};
+
+/* ------------ Switch Between Forms ------------ */
+function toggleForm(form) {
+    document.getElementById("loginForm").style.display = (form === "login") ? "block" : "none";
+    document.getElementById("registerForm").style.display = (form === "register") ? "block" : "none";
+}
+
+/* ------------ Registration ------------ */
+function register() {
+    let role = document.getElementById("regRole").value;
+    let name = document.getElementById("regName").value.trim();
+    let email = document.getElementById("regEmail").value.trim();
+    let password = document.getElementById("regPassword").value;
+    let confirm = document.getElementById("confirmPassword").value;
+
+    if (!name || !email || !password || !confirm) return alert("Please fill all fields!");
+    if (password !== confirm) return alert("Passwords do not match!");
+
+    // Generate ID
+    let uniqueId = role === "faculty"
+        ? "FAC" + Math.floor(Math.random() * 90000 + 10000)
+        : "STD" + Math.floor(Math.random() * 90000 + 10000);
+
+    let user = { role, name, email, id: uniqueId, password };
+
+    let users = JSON.parse(localStorage.getItem("lmsUsers")) || [];
+    users.push(user);
+    localStorage.setItem("lmsUsers", JSON.stringify(users));
+
+    // Show ID and auto copy
+    alert(`Registration Successful!\nYour ${role === "faculty" ? "Faculty" : "Student"} ID: ${uniqueId}\n\nIt has been copied & autofilled for Login.`);
+
+    navigator.clipboard.writeText(uniqueId);
+
+    // Auto fill login page
+    toggleForm('login');
+    document.getElementById("loginRole").value = role;
+    document.getElementById("loginUser").value = uniqueId;
+    document.getElementById("loginPassword").value = "";
+}
+
+/* ------------ Login ------------ */
+function login() {
+    let role = document.getElementById("loginRole").value;
+    let userInput = document.getElementById("loginUser").value.trim();
+    let password = document.getElementById("loginPassword").value;
+
+    // Admin Login
+    if (role === "admin") {
+        if (userInput === admin.username && password === admin.password) {
+            window.location.href = "admin_dashboard/index.html";
+            return;
+        }
+        return alert("Invalid Admin credentials!");
+    }
+
+    // Faculty / Student Login
+    let users = JSON.parse(localStorage.getItem("lmsUsers")) || [];
+    let user = users.find(u => u.id === userInput && u.password === password && u.role === role);
+
+    if (user) {
+        if (role === "faculty") window.location.href = "faculty_dashboard.html";
+        else window.location.href = "student_dashboard/index.html";
+    } else {
+        alert("Invalid ID or Password!");
+    }
+}
+</script>
+
+
+</body>
+</html>

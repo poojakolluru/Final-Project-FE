@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Student Work Grading</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap');
+
+    :root {
+        --accent1:#4db6ac;
+        --accent2:#00897b;
+        --card-bg:#ffffff;
+        --border1:#d9d9d9;
+    }
+
+    body {
+        margin: 0;
+        font-family: "Poppins", sans-serif;
+        background: #f2f7f7;
+    }
+
+    /* Page Title */
+    h2 {
+        text-align: center;
+        margin-top: 20px;
+        color: var(--accent2);
+        font-weight: 600;
+    }
+
+    /* Container for cards */
+    .card-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+        padding: 20px;
+        width: 90%;
+        margin: auto;
+    }
+
+    /* Card Style */
+    .card {
+        background: var(--card-bg);
+        border: 1px solid var(--border1);
+        padding: 15px;
+        border-radius: 12px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+    }
+
+    .card h3 {
+        margin: 0;
+        font-size: 18px;
+        color: var(--accent2);
+    }
+
+    .card p {
+        margin: 8px 0;
+        font-size: 14px;
+    }
+
+    /* Grade Button */
+    .grade-btn {
+        background: var(--accent1);
+        border: none;
+        padding: 8px 15px;
+        color: white;
+        font-size: 14px;
+        cursor: pointer;
+        border-radius: 6px;
+        margin-top: 10px;
+    }
+
+    .grade-btn:hover {
+        background: var(--accent2);
+    }
+
+    /* Hidden form */
+    #gradeFormWrapper {
+        display: none;
+        width: 400px;
+        margin: 25px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        position: relative;
+    }
+
+    #gradeFormWrapper h3 {
+        text-align: center;
+        margin-bottom: 10px;
+        color: var(--accent2);
+    }
+
+    label {
+        font-weight: 500;
+    }
+
+    input, select {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        margin-bottom: 15px;
+        border: 1px solid var(--border1);
+        border-radius: 6px;
+        font-size: 14px;
+    }
+
+    /* Submit Button */
+    #submitGrade {
+        background: var(--accent1);
+        color: white;
+        padding: 10px;
+        border: none;
+        width: 100%;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 15px;
+    }
+
+    #submitGrade:hover {
+        background: var(--accent2);
+    }
+
+    /* Back to Cards link */
+    #backToCards {
+        position: absolute;
+        top: 12px;
+        right: 15px;
+        color: blue;
+        cursor: pointer;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+</style>
+</head>
+<body>
+
+<h2>Student Uploaded Works</h2>
+
+<!-- Student Work Cards -->
+<div id="cardsSection" class="card-container"></div>
+
+<!-- Grade Form -->
+<div id="gradeFormWrapper">
+    <a id="backToCards">Back</a>
+    <h3>Grade Student Work</h3>
+
+    <label>Student ID</label>
+    <input type="text" id="gradeStudentId" readonly>
+
+    <label>Uploaded File</label>
+    <input type="text" id="gradeFile" readonly>
+
+    <label>Grade</label>
+    <select id="gradeSelect">
+        <option value="">Select Grade</option>
+        <option>A+</option>
+        <option>A</option>
+        <option>B+</option>
+        <option>B</option>
+        <option>C</option>
+        <option>D</option>
+    </select>
+
+    <button id="submitGrade">Submit Grade</button>
+</div>
+
+<script>
+    // Sample Data – you can replace with DB values
+    const studentWorks = [
+        { id: "S101", type: "Assignment", file: "assignment1.pdf" },
+        { id: "S102", type: "ALM Work", file: "alm_task2.docx" },
+        { id: "S103", type: "Assignment", file: "assignment3.pdf" }
+    ];
+
+    const cardsSection = document.getElementById("cardsSection");
+    const gradeForm = document.getElementById("gradeFormWrapper");
+
+    // Display Cards
+    function loadCards() {
+        cardsSection.innerHTML = "";
+        studentWorks.forEach(w => {
+            cardsSection.innerHTML += `
+                <div class="card">
+                    <h3>${w.type}</h3>
+                    <p><b>Student ID:</b> ${w.id}</p>
+                    <p><b>Uploaded File:</b> ${w.file}</p>
+                    <button class="grade-btn" onclick="openGradeForm('${w.id}', '${w.file}')">Grade</button>
+                </div>
+            `;
+        });
+    }
+
+    loadCards();
+
+    // Open Grade Form
+    function openGradeForm(stuId, file) {
+        document.getElementById("gradeStudentId").value = stuId;
+        document.getElementById("gradeFile").value = file;
+
+        cardsSection.style.display = "none";
+        gradeForm.style.display = "block";
+    }
+
+    // Submit Grade
+    document.getElementById("submitGrade").onclick = function () {
+        alert("Grade submitted successfully!");
+        gradeForm.style.display = "none";
+        cardsSection.style.display = "grid";
+    };
+
+    // Back to cards
+    document.getElementById("backToCards").onclick = function () {
+        gradeForm.style.display = "none";
+        cardsSection.style.display = "grid";
+    };
+</script>
+
+</body>
+</html>

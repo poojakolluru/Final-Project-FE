@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade Students</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap');
+       
+        
+        :root {
+            --accent1:#4db6ac;
+            --accent2:#00897b;
+            --card-bg:#ffffff;
+            --border1:#d9d9d9;
+        }
+
+        body {
+            margin: 0;
+             font-family: 'Poppins', sans-serif;
+
+            
+            background: #f2f7f7;
+        }
+
+        /* Toggle Button */
+        .toggle-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: linear-gradient(45deg, #ff6b9d, #c44569);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .toggle-btn:hover {
+            transform: scale(1.1);
+            background: linear-gradient(45deg, #c44569, #ff6b9d);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #81c784 0%, #4db6ac 100%);
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+            padding: 20px 0;
+            position: fixed;
+            height: 100%;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+            border-radius: 0 20px 20px 0;
+            transition: width 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            width: 70px;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        .sidebar.collapsed h2 {
+            display: none;
+        }
+
+        /* Nav Items */
+        .nav-item {
+            list-style: none;
+            margin: 15px 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 15px;
+            margin: 0 10px;
+            transition: 0.3s;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(10px);
+        }
+
+        .sidebar.collapsed .nav-link span {
+            display: none;
+        }
+
+        /* Dropdown */
+        .dropdown-menu {
+            display: none;
+        }
+        .dropdown.open .dropdown-menu {
+            display: block;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 80px 20px;
+            transition: 0.3s;
+        }
+
+        .main-content.collapsed {
+            margin-left: 70px;
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--accent2);
+            font-weight: bold;
+        }
+
+        /* CARD GRID — 3 CARDS PER ROW */
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            width: 90%;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border1);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        .card h3 {
+            color:  #30bd74;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            font-size: 16px;
+        }
+
+        /* Grade Button */
+        .grade-btn {
+            background: #949e9d;
+            border: none;
+            padding: 8px 15px;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        .grade-btn:hover {
+            background: var(--accent2);
+        }
+
+        /* Grade Form Popup */
+        #gradeFormWrapper {
+            display: none;
+            width: 400px;
+            margin: 25px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        #gradeFormWrapper h3 {
+            text-align: center;
+            color: var(--accent2);
+        }
+
+        label {
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+            border: 1px solid var(--border1);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        #submitGrade {
+            background: var(--accent1);
+            color: white;
+            padding: 10px;
+            border: none;
+            width: 100%;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        #submitGrade:hover {
+            background: var(--accent2);
+        }
+
+        /* Back Link */
+        #backToCards {
+            position: absolute;
+            top: 12px;
+            right: 15px;
+            color: blue;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .card-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .card-container {
+                grid-template-columns: repeat(1, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<button class="toggle-btn" id="toggle-btn">☰</button>
+
+<nav class="sidebar" id="sidebar">
+        <div class="logo-container">
+            <img src="images/logo4.png" alt="Logo" style="width:100%;height:168px;">
+        </div>
+        <h2>Dashboard</h2>
+        <ul>
+            <li class="nav-item">
+                <a href="index.html" class="nav-link"><i>🏠</i><span>Home</span></a>
+            </li>
+            <li class="nav-item dropdown" id="analytics">
+                <a href="#" class="nav-link dropdown-toggle"><i>📚</i><span>Courses</span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="add_courses.html">Add Course</a></li>
+                    <li><a href="add_assignment.html">Assignments</a></li>
+                    <li><a href="alm.html">ALM</a></li>
+                     <li><a href="quiz.html">Conduct Quizz</a></li>
+                
+                </ul>
+                <li class="nav-item">
+                <a href="add_student.html" class="nav-link"><i>🏠</i><span>Enrollments</span></a>
+            </li>
+            </li>
+
+<li class="nav-item">
+                <a href="grade.html" class="nav-link"><i>📊</i><span>Grade</span></a>
+            </li>
+
+            
+            
+            <!-- <li class="nav-item">
+                <a href="#" class="nav-link"><i>⚙️</i><span>Settings</span></a>
+            </li> -->
+        </ul>
+    </nav>
+
+<main class="main-content" id="main-content">
+    <h2 style="color:black">Student Uploads</h2>
+
+    <!-- Student Work Cards -->
+    <div id="cardsSection" class="card-container"></div>
+
+    <!-- Grade Form -->
+    <div id="gradeFormWrapper">
+        <a id="backToCards">Back</a>
+        <h3>Grade Student Work</h3>
+
+        <label>Student ID</label>
+        <input type="text" id="gradeStudentId" readonly>
+
+        <label>Uploaded File</label>
+        <input type="text" id="gradeFile" readonly>
+
+        <label>Grade</label>
+        <select id="gradeSelect">
+            <option value="">Select Grade</option>
+            <option>A+</option>
+            <option>A</option>
+            <option>B+</option>
+            <option>B</option>
+            <option>C</option>
+            <option>D</option>
+        </select>
+
+        <button id="submitGrade">Submit Grade</button>
+    </div>
+</main>
+<script>
+
+/* Sample Data (now supports grade field) */
+const studentWorks = [
+    { id: "S101", type: "Assignment", file: "assignment1.pdf", grade: "" },
+    { id: "S102", type: "ALM Work", file: "alm_task2.docx", grade: "" },
+    { id: "S103", type: "Assignment", file: "assignment3.pdf", grade: "" },
+    { id: "S104", type: "ALM Work", file: "alm_notes4.pdf", grade: "" },
+    { id: "S105", type: "Assignment", file: "assignment5.pptx", grade: "" },
+    { id: "S106", type: "ALM Work", file: "alm_task6.doc", grade: "" }
+];
+
+const cardsSection = document.getElementById("cardsSection");
+const gradeForm = document.getElementById("gradeFormWrapper");
+
+/* Load Cards */
+function loadCards() {
+    cardsSection.innerHTML = "";
+    studentWorks.forEach(w => {
+        cardsSection.innerHTML += `
+            <div class="card">
+                <h3>${w.type}</h3>
+                <p><b>Student ID:</b> ${w.id}</p>
+                <p><b>Uploaded File:</b> ${w.file}</p>
+
+                <!-- Show grade if available -->
+                ${w.grade 
+                    ? `<p style="color: green; font-weight:600;">Grade: ${w.grade}</p>`
+                    : `<p style="color: red; font-weight:600;">Not Graded</p>`}
+
+                <button class="grade-btn" onclick="openGradeForm('${w.id}', '${w.file}')">Grade</button>
+            </div>
+        `;
+    });
+}
+loadCards();
+
+/* Open Grade Form */
+function openGradeForm(stuId, file) {
+    document.getElementById("gradeStudentId").value = stuId;
+    document.getElementById("gradeFile").value = file;
+
+    cardsSection.style.display = "none";
+    gradeForm.style.display = "block";
+}
+
+/* Submit Grade */
+document.getElementById("submitGrade").onclick = () => {
+    let sid = document.getElementById("gradeStudentId").value;
+    let grade = document.getElementById("gradeSelect").value;
+
+    if (grade === "") {
+        alert("Please select a grade");
+        return;
+    }
+
+    // Update grade in array
+    let student = studentWorks.find(s => s.id === sid);
+    student.grade = grade;
+
+    // Reload cards to show grade
+    loadCards();
+
+    alert("Grade submitted successfully!");
+
+    gradeForm.style.display = "none";
+    cardsSection.style.display = "grid";
+};
+
+/* Back to Cards */
+document.getElementById("backToCards").onclick = () => {
+    gradeForm.style.display = "none";
+    cardsSection.style.display = "grid";
+};
+
+
+    /* Dropdown */
+    document.querySelectorAll('.dropdown-toggle').forEach(t => {
+        t.onclick = e => {
+            e.preventDefault();
+            t.parentElement.classList.toggle("open");
+        };
+    });
+    /* DROPDOWN */
+document.querySelectorAll(".dropdown-toggle").forEach(el=>{
+  el.onclick = (e)=>{ e.preventDefault(); el.parentElement.classList.toggle("open"); }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Faculty</title>
+
+    <style>
+        /* SAME STYLES YOU PROVIDED */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            color: #333;
+            display: flex;
+            height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .toggle-btn {
+            position: fixed; top: 20px; left: 20px; z-index: 1000;
+            background: linear-gradient(45deg, #ff6b9d, #c44569);
+            color: white; border: none; border-radius: 50%;
+            width: 50px; height: 50px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5em;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: .3s;
+        }
+
+        .toggle-btn:hover {
+            transform: scale(1.1);
+            background: linear-gradient(45deg, #c44569, #ff6b9d);
+        }
+
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #81c784 0%, #4db6ac 100%);
+            box-shadow: 2px 0 15px rgba(0,0,0,0.1);
+            padding: 20px 0;
+            position: fixed; height: 100%; left: 0; top: 0;
+            overflow-y: auto; transition: .4s; border-radius: 0 20px 20px 0;
+        }
+
+        .sidebar.collapsed { width: 70px; }
+        .sidebar h2 { text-align: center; color: #fff; }
+        .sidebar.collapsed h2 { display: none; }
+
+        .nav-item { list-style: none; margin: 15px 0; }
+        .nav-link {
+            display: flex; align-items: center;
+            padding: 15px 20px;
+            color: white; text-decoration: none;
+            margin: 0 10px; border-radius: 15px;
+            transition: .3s;
+        }
+        .nav-link i { margin-right: 15px; font-size: 1.5em; }
+        .sidebar.collapsed .nav-link span { display: none; }
+        .sidebar.collapsed .nav-link i { margin-right: 0; }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(10px);
+        }
+
+        .dropdown-menu {
+            list-style: none;
+            padding: 0; margin: 0;
+            background: rgba(255,255,255,0.9);
+            border-radius: 10px;
+            max-height: 0; overflow: hidden;
+            opacity: 0; transition: .3s;
+        }
+        .dropdown.open .dropdown-menu { max-height: 250px; opacity: 1; }
+        .dropdown-menu a {
+            display: block; padding: 12px 20px;
+            color: #333; text-decoration: none;
+        }
+        .dropdown-menu a:hover { background: #eafaea; }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 80px 20px;
+            flex: 1;
+            transition: .4s;
+        }
+
+        .main-content.collapsed { margin-left: 70px; }
+
+        /* FORM */
+        #facultyForm {
+            display: none;
+            max-width: 550px;
+            margin: -50px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+            animation: formPop .4s ease;
+            position: relative;
+        }
+
+        @keyframes formPop {
+            from { opacity: 0; transform: scale(.85); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+
+        #facultyForm label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        .back-text {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 14px;
+    color: #1c0f75;
+    cursor: pointer;
+    text-decoration: none;
+}
+.back-text:hover {
+    color: #68f036;
+}
+
+
+        #facultyForm input {
+            width: 100%;
+            padding: 12px;
+            border: 1.5px solid #b8e0d6;
+            border-radius: 8px;
+            margin-bottom: 18px;
+        }
+
+        #saveFacultyBtn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #4db6ac, #388e3c);
+            color: white; border: none; border-radius: 8px;
+            font-size: 1.1em; font-weight: 600; cursor: pointer;
+        }
+        #saveFacultyBtn:hover { opacity: .9; }
+
+        table {
+            width: 100%; margin-top: 25px;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px; text-align: center;
+            border: 1px solid #ccc;
+        }
+        th { background: #57c296; color: white; }
+
+        .edit-btn { background: #0288D1; color: white; border: none; padding: 5px 10px; }
+        .delete-btn { background: #D32F2F; color: white; border: none; padding: 5px 10px; }
+
+        .row { display: flex; gap: 20px; }
+        .col { flex: 1; }
+    </style>
+</head>
+
+<body>
+
+    <!-- Toggle button -->
+    <button class="toggle-btn" id="toggle-btn">☰</button>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="logo-container">
+            <img src="images/logo4.png" style="width:100%;height:168px;">
+        </div>
+
+        <h2>Dashboard</h2>
+
+        <ul>
+            <li class="nav-item"><a href="index.html" class="nav-link"><i>🏠</i><span>Home</span></a></li>
+
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle"><i>👥</i><span>Add Users</span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="add_faculty.html">Faculty</a></li>
+                    <li><a href="add_student.html">Students</a></li>
+                </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle"><i>📚</i><span>Courses</span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="add_course.html">Add Course</a></li>
+                    <li><a href="view_courses.html">View Courses</a></li>
+                    <li><a href="alm.html">ALM</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+<!-- MAIN CONTENT -->
+<main class="main-content" id="main-content">
+
+    <h2 style="text-align:center; margin-bottom:60px;">Add Faculty</h2>
+
+    <button id="addFacultyBtn" style="padding:10px 20px;background:#7e22ce;color:white;border:none;border-radius:6px;cursor:pointer;">Add Faculty</button>
+
+    <!-- FORM -->
+    <form id="facultyForm" style="display:none; position:relative;">
+
+        <!-- TOP RIGHT TEXT -->
+        <div class="back-text" id="backText" 
+             style="position:absolute; top:10px; right:20px; font-size:14px; color:#007bff; cursor:pointer; text-decoration:underline;">
+             Back to Table
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <label>Faculty ID</label>
+                <input type="text" id="fid">
+            </div>
+
+            <div class="col">
+                <label>Full Name</label>
+                <input type="text" id="fname" style="margin-left: 6px;">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <label>Email</label>
+                <input type="email" id="email">
+            </div>
+
+            <div class="col">
+                <label>Phone Number</label>
+                <input type="text" id="phone" style="margin-left: 6px;">
+            </div>
+        </div>
+
+        <label>Qualification</label>
+        <input type="text" id="qualification">
+
+        <label>Experience (Years)</label>
+        <input type="number" id="experience">
+
+        <label>Department</label>
+        <input type="text" id="department">
+
+        <label>Address</label>
+        <input type="text" id="address">
+
+        <button type="button" id="saveFacultyBtn">Save Faculty</button>
+    </form>
+
+    <!-- TABLE -->
+    <table id="facultyTable" style="width:100%; margin-top:25px;">
+        <thead>
+            <tr>
+                <th>Faculty ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Qualification</th>
+                <th>Experience</th>
+                <th>Department</th>
+                <th>Address</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="facultyBody"></tbody>
+    </table>
+
+</main>
+
+<!-- SCRIPT -->
+<script>
+    const toggleBtn = document.getElementById("toggle-btn");
+    const sidebar = document.getElementById("sidebar");
+    const mainContent = document.getElementById("main-content");
+
+    toggleBtn.onclick = () => {
+        sidebar.classList.toggle("collapsed");
+        mainContent.classList.toggle("collapsed");
+    };
+
+    document.querySelectorAll(".dropdown-toggle").forEach(btn => {
+        btn.onclick = function(e){
+            e.preventDefault();
+            this.parentElement.classList.toggle("open");
+        };
+    });
+
+    /* ADD FACULTY FUNCTIONALITY */
+    let addBtn = document.getElementById("addFacultyBtn");
+    let form = document.getElementById("facultyForm");
+    let saveBtn = document.getElementById("saveFacultyBtn");
+    let tbody = document.getElementById("facultyBody");
+    let facultyTable = document.getElementById("facultyTable");
+    let editIndex = -1;
+
+    window.onload = function () {
+        let faculty = JSON.parse(localStorage.getItem("facultyList")) || [];
+        faculty.forEach(f => addRow(f));
+    };
+
+    addBtn.onclick = () => {
+        form.style.display = "block";
+        addBtn.style.display = "none";
+        facultyTable.style.display = "none";
+    };
+
+    saveBtn.onclick = () => {
+        let f = {
+            fid: fid.value,
+            fname: fname.value,
+            email: email.value,
+            phone: phone.value,
+            qualification: qualification.value,
+            experience: experience.value,
+            department: department.value,
+            address: address.value
+        };
+
+        if (Object.values(f).includes("")) { alert("Fill all fields"); return; }
+
+        let faculty = JSON.parse(localStorage.getItem("facultyList")) || [];
+
+        if (editIndex === -1) {
+            faculty.push(f);
+            addRow(f);
+        } else {
+            faculty[editIndex] = f;
+            refreshTable(faculty);
+            editIndex = -1;
+        }
+
+        localStorage.setItem("facultyList", JSON.stringify(faculty));
+
+        form.reset();
+        form.style.display = "none";
+        addBtn.style.display = "block";
+        facultyTable.style.display = "table";
+    };
+
+    function addRow(f) {
+        let row = tbody.insertRow();
+        row.innerHTML = `
+            <td>${f.fid}</td>
+            <td>${f.fname}</td>
+            <td>${f.email}</td>
+            <td>${f.phone}</td>
+            <td>${f.qualification}</td>
+            <td>${f.experience}</td>
+            <td>${f.department}</td>
+            <td>${f.address}</td>
+            <td>
+                <button class="edit-btn" onclick="editFaculty(this)">Edit</button>
+                <button class="delete-btn" onclick="deleteFaculty(this)">Delete</button>
+            </td>
+        `;
+    }
+
+    function refreshTable(list) {
+        tbody.innerHTML = "";
+        list.forEach(f => addRow(f));
+    }
+
+    window.editFaculty = function(btn) {
+        editIndex = btn.parentNode.parentNode.rowIndex - 1;
+        let row = tbody.rows[editIndex];
+
+        fid.value = row.cells[0].innerText;
+        fname.value = row.cells[1].innerText;
+        email.value = row.cells[2].innerText;
+        phone.value = row.cells[3].innerText;
+        qualification.value = row.cells[4].innerText;
+        experience.value = row.cells[5].innerText;
+        department.value = row.cells[6].innerText;
+        address.value = row.cells[7].innerText;
+
+        form.style.display = "block";
+        addBtn.style.display = "none";
+        facultyTable.style.display = "none";
+    };
+
+    window.deleteFaculty = function(btn) {
+        let index = btn.parentNode.parentNode.rowIndex - 1;
+        let faculty = JSON.parse(localStorage.getItem("facultyList")) || [];
+        faculty.splice(index, 1);
+        localStorage.setItem("facultyList", JSON.stringify(faculty));
+        refreshTable(faculty);
+    };
+
+    /* BACK TO TABLE TEXT FIXED */
+    const backText = document.getElementById("backText");
+
+    backText.addEventListener("click", () => {
+        form.style.display = "none";
+        addBtn.style.display = "block";
+        facultyTable.style.display = "table";
+    });
+</script>
+
+
+</body>
+</html>
